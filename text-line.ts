@@ -1,5 +1,3 @@
 
-export default function (name:string, value:string) {
-    name = name.replace(/([A-Z])/g, ' $1').toLowerCase();
-    return `${name}: ${value}`;
-}
+export default (name: string, value: string | number | boolean) =>
+    `${name.replace(/([A-Z])/g, ' $1').toLowerCase()}: ${value}`;

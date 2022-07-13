@@ -1,12 +1,9 @@
+import { Data } from './types.ts';
 
-export default function (data: Record<string, string>, lines: Array<string>) {
-	return `
-		Hello,
+export default (data: Data, lines: Array<string>) => `
+    You have received a ${data.title} submission ${data.link}.
 
-		You have received a ${data.$name} submission from ${data.$domain}.
+    ${lines.join('\n')}
 
-		${lines.join('\n')}
-
-		Powered By ${data.$byName}
-	`;
-}
+    Provider ${data.provider}
+`;

@@ -1,62 +1,49 @@
+import { Type, Client, Data, Options } from './types.ts';
 import TextLine from './text-line.ts';
 import HtmlLine from './html-line.ts';
 import Html from './html.ts';
 import Text from './text.ts';
 
-type Client = 'sendgrid';
-
-type Options = {
-    key: string;
-    data: Record<string, string>;
-
-    text?: string;
-    html?: string;
-    csv?: string;
-
-    from: string;
-    to: Array<string>;
-
-    subject?: string;
-    cc?: Array<string>;
-    bcc?: Array<string>;
-    reply?: Array<string>;
-
-};
-
-const SPLIT = /\s*,+\s*|\s+/;
-
 export default class Email {
 
-    #key: string;
-    #client: Client = 'sendgrid';
+    #key?: string;
+    #type: Type = 'json';
+    #client?: Client = 'sendgrid';
 
-    constructor (options: any = {}) {
-        this.#key = options.key;
-        this.#client = options.client;
+    constructor (options?: Options) {
+        this.#key = options?.key ?? this.#key;
+        this.#client = options?.client ?? this.#client;
+        this.#type = options?.type ?? this.#type;
     }
 
-    #sendGrid (data: any) {
+    #sendGrid (data: Data) {
+        if (!this.#key) throw new Error('key required');
 
-        const body = {
+        const body: any = {
+            content: [],
             subject: data.subject,
             from: { email: data.from },
             personalizations: [ { to: data.to.map((email: string) => ({ email })) } ],
-            content: [ { type: 'text/plain', value: data.text }, { type: 'text/html', value: data.html } ]
+            // mail_settings: { sandbox_mode: { enable: true } }
         };
+
+        if (data.name) body.from.name = data.name;
+        if (data.text) body.content.push({ type: 'text/plain', value: data.text });
+        if (data.html) body.content.push({ type: 'text/html', value: data.html });
+
+        if (data.csv) {
+            const filename = typeof data.content === 'object' ? data.title.toLowerCase().replace(/\s+/g, '-').concat('.csv') : 'data.csv';
+            body.attachments = [ { filename, content: btoa(data.csv), type: 'text/csv', disposition: 'attachment' } ];
+        }
 
         return fetch('https://api.sendgrid.com/v3/mail/send', {
             method: 'POST',
             body: JSON.stringify(body),
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${data.key}`
+                'Authorization': `Bearer ${this.#key}`
             }
         });
-    }
-
-    client (client: Client) {
-        this.#client = client;
-        return this;
     }
 
     key (key: string) {
@@ -64,28 +51,30 @@ export default class Email {
         return this;
     }
 
-    template (data: Record<string, string>) {
-        data = data || {};
+    client (client: Client) {
+        this.#client = client;
+        return this;
+    }
 
-        if (!data.$name) throw new Error('Email.template - requires $name');
-        if (!data.$byName) throw new Error('Email.template - requires $byName');
-        if (!data.$domain) throw new Error('Email.template - requires $domain');
-        if (!data.$byDomain) throw new Error('Email.template - requires $byDomain');
+    type (type: Type) {
+        this.#type = type;
+        return this;
+    }
+
+    template (data: Data) {
+        if (typeof data.content !== 'object') throw new Error('content not valid');
 
         const textLines = [];
         const htmlLines = [];
-
         const csvHead = [];
         const csvLine = [];
 
-        for (const name in data) {
-            if (name.charAt(0) !== '$') {
-                const value = data[ name ];
-                htmlLines.push(HtmlLine(name, value));
-                textLines.push(TextLine(name, value));
-                csvHead.push(name);
-                csvLine.push(value);
-            }
+        for (const name in data.content) {
+            const value = data.content[ name ];
+            htmlLines.push(HtmlLine(name, value));
+            textLines.push(TextLine(name, value));
+            csvHead.push(name);
+            csvLine.push(value);
         }
 
         const text = Text(data, textLines);
@@ -95,29 +84,26 @@ export default class Email {
         return { text, html, csv };
     }
 
-    send (options: Options) {
-        if (!options) throw new Error('options required');
-        if (!options.from) throw new Error('from required');
-        if (!options.data) throw new Error('data required');
+    send (data: Data) {
+        if (!data) throw new Error('data required');
+        if (!data.to) throw new Error('to required');
+        if (!data.from) throw new Error('from required');
+        if (!data.link) throw new Error('link required');
+        if (!data.title) throw new Error('title required');
+        if (!data.content) throw new Error('content required');
+        if (!data.provider) throw new Error('provider required');
 
-        options = { ...options };
+        data = { ...data };
 
-        options.to =options.to;
-        options.cc = options.cc;
-        options.bcc = options.bcc;
-        options.reply = options.reply;
-
-        if (!options.html || !options.text || !options.csv) {
-            const { text, html, csv } = this.template(options.data);
-            options.html = options.html ?? html;
-            options.text = options.text ?? text;
-            options.csv = options.csv ?? csv;
+        if (this.#type === 'json' && typeof data.content === 'object') {
+            const { text, html, csv } = this.template(data);
+            data.html = data.html ?? html;
+            data.text = data.text ?? text;
+            data.csv = data.csv ?? csv;
         }
 
-        options.key = this.#key;
-
         switch (this.#client) {
-            case 'sendgrid': return this.#sendGrid(options);
+            case 'sendgrid': return this.#sendGrid(data);
         }
 
     }
