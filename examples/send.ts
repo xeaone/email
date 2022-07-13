@@ -11,7 +11,7 @@ email.client('sendgrid');
 
 const result = await email.send({
     name: 'Plants',
-    subject: 'It is so BIG... 🍆',
+    subject: 'Free Planting 🍑 🍆',
     from: 'noreply@',
     to: [ '@gmail.com' ],
 
