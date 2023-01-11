@@ -1,3 +1,5 @@
+import { encode } from './deps.ts';
+
 import { Type, Client, Data, Options } from './types.ts';
 import TextLine from './text-line.ts';
 import HtmlLine from './html-line.ts';
@@ -32,8 +34,17 @@ export default class Email {
         if (data.html) body.content.push({ type: 'text/html', value: data.html });
 
         if (data.csv) {
-            const filename = typeof data.content === 'object' ? data.title.toLowerCase().replace(/\s+/g, '-').concat('.csv') : 'data.csv';
-            body.attachments = [ { filename, content: btoa(data.csv), type: 'text/csv', disposition: 'attachment' } ];
+            const filename = typeof data.content === 'object' ?
+                data.title.toLowerCase().replace(/\s+/g, '-').concat('.csv') :
+                'data.csv';
+
+            body.attachments = [
+                {
+                    filename,
+                    content: encode(data.csv),
+                    type: 'text/csv', disposition: 'attachment'
+                }
+            ];
         }
 
         return fetch('https://api.sendgrid.com/v3/mail/send', {
