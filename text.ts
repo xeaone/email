@@ -1,6 +1,8 @@
-import { Data } from './types.ts';
+import { TemplateData } from './types.ts';
 
-export default (data: Data, lines: Array<string>) => `
+export const line = (name: string, value: string | number | boolean) => `${name.replace(/([A-Z])/g, ' $1').toLowerCase()}: ${value}`;
+
+export const body = (data: TemplateData, lines: Array<string>) => `
     You have received a ${data.title} submission ${data.link}.
 
     ${lines.join('\n')}

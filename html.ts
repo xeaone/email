@@ -1,6 +1,16 @@
-import { Data } from './types.ts';
+import { TemplateData } from './types.ts';
 
-export default (data: Data, lines: Array<string>) => /*html*/`
+export const line = (
+    name: string,
+    value: string | number | boolean,
+) => /*html*/ `
+<tr>
+    <td style="font-family: sans-serif; font-size: 15px; vertical-align: top; font-weight: bold; text-transform: capitalize;">${name.replace(/([A-Z])/g, ' $1').toLowerCase()}: </td>
+    <td style="font-family: sans-serif; font-size: 15px; vertical-align: top;">${value}</td>
+</tr>
+`;
+
+export const body = (data: TemplateData, lines: Array<string>) => /*html*/ `
 <!DOCTYPE html>
 <html>
 <head>

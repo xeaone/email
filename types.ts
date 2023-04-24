@@ -1,5 +1,4 @@
-
-export type Client = 'sendgrid';
+export type Client = 'sendgrid' | 'gmail';
 
 export type Type = 'json' | 'html' | 'text';
 
@@ -7,29 +6,33 @@ export type Options = {
     key?: string;
     type?: Type;
     client?: Client;
+    sandbox?: boolean;
 };
 
-export type Content = {
-    [ name: string ]: string | number | boolean;
-};
-
-export type Data = {
+export type SendData = {
     text?: string;
     html?: string;
-    csv?: string;
+    attachments?: Record<string, string>;
+
+    name: string; // email from name
+    subject: string; // email subject
 
     from: string; // email from address
-    to: Array<string>; // email to address
-    content: string | Content; // email content
+    reply: string; // email reply to address
 
-    name?: string; // email from name
-    subject?: string; // email subject
-
-    link: string; // content link
-    title: string; // content title
-    provider: string; // content provider
+    to: string | Array<string>; // email to address
 
     cc?: Array<string>;
     bcc?: Array<string>;
-    reply?: Array<string>; // email reply to address
+};
+
+export type TemplateContent = {
+    [name: string]: string | number | boolean;
+};
+
+export type TemplateData = {
+    link: string; // link
+    title: string; // title
+    provider: string; // provider
+    content: TemplateContent;
 };

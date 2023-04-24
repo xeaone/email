@@ -1,0 +1,15 @@
+{
+    "tasks": {
+        "test": "deno test -A test.ts",
+        "dev": "deno run --watch main.ts"
+    },
+    "fmt": {
+        "options": {
+            "indentWidth": 4,
+            "lineWidth": 800,
+            "singleQuote": true,
+            "semiColons": true,
+            "proseWrap": "always"
+        }
+    }
+}
