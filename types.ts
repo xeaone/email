@@ -18,7 +18,7 @@ export type SendData = {
     subject: string; // email subject
 
     from: string; // email from address
-    reply: string; // email reply to address
+    // reply: string; // email reply to address
 
     to: string | Array<string>; // email to address
 

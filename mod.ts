@@ -46,8 +46,9 @@ export default class Email {
         }
 
         if (data.to?.constructor === String) {
-            body.personalizations.push({ to: data.to });
+            body.personalizations.push({ to: [{ email: data.to }] });
         }
+
         if (data.to?.constructor === Array) {
             body.personalizations.push({
                 to: data.to.map((email) => ({ email })),
@@ -55,7 +56,7 @@ export default class Email {
         }
 
         if (data.name) body.from.name = data.name;
-        if (data.reply) body.replay_to = { email: data.reply };
+        // if (data.reply) body.replay_to = { email: data.reply };
 
         if (data.text) {
             body.content.push({ type: 'text/plain', value: data.text });
