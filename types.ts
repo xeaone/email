@@ -26,13 +26,13 @@ export type SendData = {
     bcc?: Array<string>;
 };
 
-export type TemplateContent = {
-    [name: string]: string | number | boolean;
-};
+// export type TemplateContent = {
+//     [name: string]: string | number | boolean;
+// };
 
-export type TemplateData = {
-    link: string; // link
-    title: string; // title
-    provider: string; // provider
-    content: TemplateContent;
-};
+// export type TemplateData = {
+//     link: string; // link
+//     title: string; // title
+//     provider: string; // provider
+//     content: TemplateContent;
+// };

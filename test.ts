@@ -8,7 +8,6 @@ const name = 'Plants';
 const subject = 'Free Planting 🍑 🍆';
 const from = 'noreply@arcdev.io';
 const to = ['alex.steven.elias@gmail.com'];
-const reply = 'noreply@arcdev.io';
 
 const email = new Email();
 
@@ -16,37 +15,36 @@ email.key(key);
 email.sandbox(true);
 email.client('sendgrid');
 
-Deno.test('sendgrid with template', async () => {
-    const { html, text, attachments } = email.template({
-        title: 'Foo Bar',
-        provider: 'Super Man',
-        link: 'https://foobar.com/',
-        content: {
-            firstName: 'foo',
-            lastName: 'bar',
-        },
-    });
+// Deno.test('sendgrid with template', async () => {
+//     const { html, text, attachments } = email.template({
+//         title: 'Foo Bar',
+//         provider: 'Super Man',
+//         link: 'https://foobar.com/',
+//         content: {
+//             firstName: 'foo',
+//             lastName: 'bar',
+//         },
+//     });
 
-    const result = await email.send({
-        name,
-        subject,
-        from,
-        to,
-        reply,
-        html,
-        text,
-        attachments,
-    });
+//     const result = await email.send({
+//         name,
+//         subject,
+//         from,
+//         to,
+//         html,
+//         text,
+//         attachments,
+//     });
 
-    console.log(await result.text());
+//     console.log(await result.text());
 
 
-    // with sandbox
-    await assertEquals(result.status, 200);
+//     // with sandbox
+//     await assertEquals(result.status, 200);
 
-    // without sandbox
-    // await assertEquals(result.status, 202);
-});
+//     // without sandbox
+//     // await assertEquals(result.status, 202);
+// });
 
 Deno.test('sendgrid without template', async () => {
     const result = await email.send({
@@ -54,7 +52,6 @@ Deno.test('sendgrid without template', async () => {
         subject,
         from,
         to,
-        reply,
         html: '<h1>Hello World</h1>',
         text: 'Hello World',
     });

@@ -63,7 +63,7 @@ export const body = (data: TemplateData, lines: Array<string>) => /*html*/ `
         }
     </style>
 </head>
-<body class="" style="background-color: #f6f6f6; font-family: sans-serif; -webkit-font-smoothing: antialiased; font-size: 15px; line-height: 1.4; margin: 0; padding: 0; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%;">
+<body style="background-color: #f6f6f6; font-family: sans-serif; -webkit-font-smoothing: antialiased; font-size: 15px; line-height: 1.4; margin: 0; padding: 0; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%;">
     <table border="0" cellpadding="0" cellspacing="0" class="body" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; background-color: #f6f6f6;">
         <tr>
             <td style="font-family: sans-serif; font-size: 15px; vertical-align: top;">&nbsp;</td>
@@ -73,21 +73,27 @@ export const body = (data: TemplateData, lines: Array<string>) => /*html*/ `
 
                     <span class="preheader" style="color: transparent; display: none; height: 0; max-height: 0; max-width: 0; opacity: 0; overflow: hidden; mso-hide: all; visibility: hidden; width: 0;">Email Submission Title ${data.title}.</span>
 
-                    <!-- START MAIN CONTENT AREA -->
+                    <!-- START MAIN -->
                     <table class="main" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; background: #ffffff; border-radius: 3px;">
                         <tr>
                             <td class="wrapper" style="font-family: sans-serif; font-size: 15px; vertical-align: top; box-sizing: border-box; padding: 20px;">
                                 <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%;">
                                     <tr>
                                         <td style="font-family: sans-serif; font-size: 15px; vertical-align: top;">
-                                            <p style="font-family: sans-serif; font-size: 15px; font-weight: normal; margin: 0; Margin-bottom: 15px;">You have received a ${data.title} submission <a href="${data.link}" target="_blank" style="display: inline-block; box-sizing: border-box; cursor: pointer; font-size: 15px;">${data.link}</a>.</p>
+                                            <!-- <p style="font-family: sans-serif; font-size: 15px; font-weight: normal; margin: 0; Margin-bottom: 15px;">You have received a ${data.title} submission <a href="${data.link}" target="_blank" style="display: inline-block; box-sizing: border-box; cursor: pointer; font-size: 15px;">${data.link}</a>.</p> -->
                                             <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; box-sizing: border-box;">
                                                 <tbody>
                                                     <tr>
                                                         <td align="left" style="font-family: sans-serif; font-size: 15px; vertical-align: top; padding-bottom: 15px;">
                                                             <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; margin: auto; width: 90%;">
                                                                 <tbody>
-                                                                    ${lines.join('\n')}
+
+                                                                    ${lines.map(line => /*html*/ `
+                                                                        <tr>
+                                                                            <td style="font-family: sans-serif; font-size: 15px; vertical-align: top;">${line}</td>
+                                                                        </tr>
+                                                                    `).join('\n')}
+
                                                                 </tbody>
                                                             </table>
                                                         </td>
@@ -100,10 +106,10 @@ export const body = (data: TemplateData, lines: Array<string>) => /*html*/ `
                             </td>
                         </tr>
                     </table>
-                    <!-- END MAIN CONTENT AREA -->
+                    <!-- END MAIN -->
 
                     <!-- START FOOTER -->
-                    <div class="footer" style="clear: both; Margin-top: 10px; text-align: center; width: 100%;">
+                    <div class="footer" style="clear: both; margin-top: 10px; text-align: center; width: 100%;">
                         <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%;">
                             <tr>
                                 <td class="content-block" style="font-family: sans-serif; vertical-align: top; padding-bottom: 10px; padding-top: 10px; font-size: 12px; color: #999999; text-align: center;">

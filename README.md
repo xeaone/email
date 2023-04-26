@@ -32,3 +32,8 @@ const result = await email.send({
     attachments,
 });
 ```
+
+<!--
+    https://www.caniemail.com/search/
+    https://github.com/leemunroe/responsive-html-email-template
+-->

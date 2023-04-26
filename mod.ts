@@ -1,7 +1,8 @@
-import { Client, Options, SendData, TemplateData, Type } from './types.ts';
+import { Client, Options, SendData, Type } from './types.ts';
 import { encode, typeByExtension } from './deps.ts';
-import * as Html from './html.ts';
-import * as Text from './text.ts';
+import template from './template.ts';
+// import * as Html from './html.ts';
+// import * as Text from './text.ts';
 
 // import jwt from './jwt.ts';
 
@@ -177,33 +178,35 @@ export default class Email {
         return sandbox;
     }
 
-    template(data: TemplateData) {
-        if (typeof data.content !== 'object') {
-            throw new Error('content not valid');
-        }
+    template = template;
 
-        const textLines = [];
-        const htmlLines = [];
-        const csvHead = [];
-        const csvLine = [];
+    // template(data: TemplateData) {
+    //     if (typeof data.content !== 'object') {
+    //         throw new Error('content not valid');
+    //     }
 
-        for (const name in data.content) {
-            const value = data.content[name];
-            htmlLines.push(Html.line(name, value));
-            textLines.push(Text.line(name, value));
-            csvHead.push(name);
-            csvLine.push(value);
-        }
+    //     const textLines = [];
+    //     const htmlLines = [];
+    //     const csvHead = [];
+    //     const csvLine = [];
 
-        const text = Text.body(data, textLines);
-        const html = Html.body(data, htmlLines);
+    //     for (const name in data.content) {
+    //         const value = data.content[name];
+    //         htmlLines.push(Html.line(name, value));
+    //         textLines.push(Text.line(name, value));
+    //         csvHead.push(name);
+    //         csvLine.push(value);
+    //     }
 
-        const attachments = {
-            'data.csv': `${csvHead.join(',')}\n"${csvLine.join('","')}"`,
-        };
+    //     const text = Text.body(data, textLines);
+    //     const html = Html.body(data, htmlLines);
 
-        return { text, html, attachments };
-    }
+    //     const attachments = {
+    //         'data.csv': `${csvHead.join(',')}\n"${csvLine.join('","')}"`,
+    //     };
+
+    //     return { text, html, attachments };
+    // }
 
     send(data: SendData) {
         if (!data) throw new Error('data required');
