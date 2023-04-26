@@ -1,56 +1,69 @@
+import dash from './dash.ts';
+import { htmlEntity, attributeEntity } from './encode.ts';
 // deno-fmt-ignore-file
 
-const Dash = (data: string) => {
-    return data.replace(/[A-Z]/g, c => '-' + c.toLowerCase());
-}
-
-const Style = (item: Item | Container, style?: Record<string, string>) => {
-    let result = '';
+const style = (item: { style?: Record<string, string> }) => {
+    const result = [];
 
     for (const name in item.style) {
         const value = item.style[name];
-        result += ` ${Dash(name)}: ${value};`;
+        result.push(`${dash(name)}: ${value};`);
     }
 
-    for (const name in style) {
-        const value = style[name];
-        result += ` ${Dash(name)}: ${value};`;
-    }
-
-    return `style="${result}"`;
+    return result.length ? `style="${attributeEntity(result.join(' '))}"` : '';
 }
 
-const Attributes = (item: Item) => {
-    let result = '';
+const attributes = (item: { attributes?: Record<string, string> }) => {
+    const result = [];
 
     for (const name in item.attributes) {
         const value = item.attributes[name];
-        result += `${Dash(name)}="${value}"`;
+        result.push(`${dash(name)}="${attributeEntity(value)}"`);
     }
 
-    return result;
+    return result.join(' ');
 }
 
-type Item = {
+const tag = (data: string) => {
+    return htmlEntity(data);
+}
 
+type Element = {
     style?: Record<string, string>,
     attributes?: Record<string, string>,
-
-    align?: string,
-    valign?: string,
 
     tag: string,
     text: string,
 }
 
-type Container = {
+type ColumnInner = {
+    align?: string,
+    valign?: string,
     style?: Record<string, string>,
-    items?: Array<Item>,
+
+    elements: Array<Element>,
+}
+
+type RowInner = {
+    style?: Record<string, string>,
+    columns: Array<ColumnInner>,
+}
+
+type ColumnOuter = {
+    align?: string,
+    valign?: string,
+    style?: Record<string, string>,
+
+    rows: Array<RowInner>,
+}
+
+type RowOuter = {
+    style?: Record<string, string>,
+    columns: Array<ColumnOuter>,
 }
 
 type Root = {
     color?: string,
-    margin?: string,
     padding?: string,
     fontSize?: string,
     fontFamily?: string,
@@ -58,18 +71,17 @@ type Root = {
 
     title?: string,
 
-    containers?: Array<Container>,
+    rows?: Array<RowOuter>,
 }
 
 export default ({
     color = '#000',
-    margin = '4px',
     padding = '9px',
     fontSize = '18px',
     fontFamily = 'sans-serif',
     backgroundColor = '#fff',
     title = '',
-    containers = [],
+    rows = [],
 }: Root = {}) => `
 <!DOCTYPE html>
 <html lang="en" style="margin: 0; padding: 0; width: 100%; height: 100%">
@@ -95,35 +107,46 @@ export default ({
 ">
 
     <table width="100%" cellspacing="0" cellpadding="0" border="0" style="
+        margin: 0;
         width: 100%;
         color: ${color};
-        margin: 0;
         padding: ${padding};
         font-size: ${fontSize};
         font-family: ${fontFamily};
         background-color: ${backgroundColor};
     ">
 
-        ${(containers || []).map(container => `
-        <tr>
-        <td align="center" valign="middle">
-        <table width="100%" cellspacing="0" cellpadding="0" border="0"
-            ${Style(container, { width: '100%', minWidth: '300px', maxWidth: '600px' })}
-        >
+        ${(rows || []).map(row => `
+        <tr ${style(row)}>
 
-            ${(container.items || []).map(item => `
-            <tr>
-            <td align="${item.align || 'left'}" valign="${item.valign || 'middle'}">
-                <${item.tag}
-                    ${Attributes(item)}
-                    ${Style(item, { display: 'inline-block', textDecoration: 'none', boxSizing: 'border-box' })}
-                >${item.text}</${item.tag}>
+            ${(row.columns || []).map(column => `
+            <td align="${column.align || 'center'}" valign="${column.align || 'middle'}">
+
+                <table cellspacing="0" cellpadding="0" border="0" ${style(column)}>
+
+                    ${(column.rows || []).map(row => `
+                    <tr ${style(row)}>
+
+                        ${(row.columns || []).map(column => `
+                        <td align="${column.align || 'left'}" valign="${column.valign || 'middle'}">
+
+                            ${column.elements?.map(element => `
+
+                            <${tag(element.tag)} ${style(element)} ${attributes(element)}>${htmlEntity(element.text)}</${tag(element.tag)}>
+
+                            `).join('\n')}
+
+                        </td>
+                        `).join('\n')}
+
+                    </tr>
+                    `).join('\n')}
+
+                </table>
+
             </td>
-            </tr>
             `).join('\n')}
 
-        </table>
-        </td>
         </tr>
         `).join('\n')}
 
@@ -132,17 +155,3 @@ export default ({
 </body>
 </html>
 `
-
-/*
-style="
-
-            color: ${container.color || color};
-            margin: ${container.margin || margin};
-            padding: ${container.padding || padding};
-            font-size: ${container.fontSize || fontSize};
-            font-family: ${container.fontFamily || fontFamily};
-            border-radius: ${container.borderRadius || borderRadius};
-            background-color: ${container.backgroundColor || backgroundColor};
-
-        "
-*/
