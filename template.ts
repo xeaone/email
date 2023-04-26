@@ -5,8 +5,6 @@ const Dash = (data: string) => {
 }
 
 const Style = (item: Item | Container, style?: Record<string, string>) => {
-    // if (!item.style) return '';
-
     let result = '';
 
     for (const name in item.style) {
@@ -23,8 +21,6 @@ const Style = (item: Item | Container, style?: Record<string, string>) => {
 }
 
 const Attributes = (item: Item) => {
-    if (!item.attributes) return '';
-
     let result = '';
 
     for (const name in item.attributes) {
@@ -37,41 +33,18 @@ const Attributes = (item: Item) => {
 
 type Item = {
 
-    // attributes: Record<string, string>,
-
-    // color?: string,
-    // margin?: string,
-    // padding?: string,
-    // fontSize?: string,
-    // fontFamily?: string,
-    // borderRadius?: string,
-    // backgroundColor?: string,
-
     style?: Record<string, string>,
     attributes?: Record<string, string>,
 
     align?: string,
     valign?: string,
 
-    // href?: string,
-    // src?: string,
-
     tag: string,
     text: string,
-
 }
 
 type Container = {
-    // color?: string,
-    // margin?: string,
-    // padding?: string,
-    // fontSize?: string,
-    // fontFamily?: string,
-    // borderRadius?: string,
-    // backgroundColor?: string,
-
     style?: Record<string, string>,
-
     items?: Array<Item>,
 }
 
@@ -81,7 +54,6 @@ type Root = {
     padding?: string,
     fontSize?: string,
     fontFamily?: string,
-    borderRadius?: string,
     backgroundColor?: string,
 
     title?: string,
@@ -94,7 +66,6 @@ export default ({
     margin = '4px',
     padding = '9px',
     fontSize = '18px',
-    borderRadius = '0px',
     fontFamily = 'sans-serif',
     backgroundColor = '#fff',
     title = '',
@@ -115,6 +86,8 @@ export default ({
     padding: 0;
     width: 100%;
     height: 100%;
+    max-width: 100%;
+    max-height: 100%;
     color: ${color};
     font-size: ${fontSize};
     font-family: ${fontFamily};
@@ -124,7 +97,7 @@ export default ({
     <table width="100%" cellspacing="0" cellpadding="0" border="0" style="
         width: 100%;
         color: ${color};
-        margin: ${margin};
+        margin: 0;
         padding: ${padding};
         font-size: ${fontSize};
         font-family: ${fontFamily};
@@ -134,12 +107,17 @@ export default ({
         ${(containers || []).map(container => `
         <tr>
         <td align="center" valign="middle">
-        <table width="100%" cellspacing="0" cellpadding="0" border="0" ${Style(container, { width: '100%', minWidth: '300px', maxWidth: '600px' })}>
+        <table width="100%" cellspacing="0" cellpadding="0" border="0"
+            ${Style(container, { width: '100%', minWidth: '300px', maxWidth: '600px' })}
+        >
 
             ${(container.items || []).map(item => `
             <tr>
             <td align="${item.align || 'left'}" valign="${item.valign || 'middle'}">
-                <${item.tag} ${Style(item)} ${Attributes(item)}>${item.text}</${item.tag}>
+                <${item.tag}
+                    ${Attributes(item)}
+                    ${Style(item, { display: 'inline-block', textDecoration: 'none', boxSizing: 'border-box' })}
+                >${item.text}</${item.tag}>
             </td>
             </tr>
             `).join('\n')}

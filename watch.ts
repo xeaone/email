@@ -4,29 +4,37 @@ import template from './template.ts';
 
 const result = template({
 
-    // footerText: ['Footer Text'],
-    // footerTitle: ['Footer Title'],
-
-    // actionText: 'Action',
-    // actionHref: '#action',
-
-    // mainText: ['Main Text'],
-    // mainTitle: ['Main Title'],
-
-    // headerText: ['Header Text'],
-    // headerTitle: ['Header Title'],
-
     title: 'Document Title',
 
     containers: [
         {
-            // borderRadius: '4px',
-            // color: '#000',
-            // backgroundColor: '#eee',
+            style: {
+                color: '#000',
+                padding: '18px',
+                borderRadius: '4px',
+                backgroundColor: '#eee',
+            },
             items: [
-                { tag: 'h1', text: 'Title', style: { fontSize: '36px' } },
-                { tag: 'p', text: 'Text 1' },
-                { tag: 'p', text: 'Text 2' },
+                {
+                    tag: 'h1', text: 'Title',
+                    style: {
+                        fontSize: '36px'
+                    }
+                },
+                {
+                    tag: 'p',
+                    text: 'Text 1',
+                    style: {
+                        fontSize: '18px'
+                    }
+                },
+                {
+                    tag: 'p',
+                    text: 'Text 2',
+                    style: {
+                        fontSize: '18px'
+                    }
+                },
                 {
                     tag: 'a',
                     text: 'Action',
@@ -35,6 +43,8 @@ const result = template({
                     },
                     style: {
                         color: '#fff',
+                        padding: '9px',
+                        borderRadius: '4px',
                         backgroundColor: '#000',
                     }
                 },
