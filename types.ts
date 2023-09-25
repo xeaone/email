@@ -12,7 +12,9 @@ export type Options = {
 export type SendData = {
     text?: string;
     html?: string;
-    attachments?: Record<string, string>;
+
+    inlines?: Record<string, string | ArrayBuffer>;
+    attachments?: Record<string, string | ArrayBuffer>;
 
     name: string; // email from name
     subject: string; // email subject

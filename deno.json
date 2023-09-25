@@ -4,12 +4,10 @@
         "w": "deno run -A --watch watch.ts"
     },
     "fmt": {
-        "options": {
-            "indentWidth": 4,
-            "lineWidth": 800,
-            "singleQuote": true,
-            "semiColons": true,
-            "proseWrap": "always"
-        }
+        "indentWidth": 4,
+        "lineWidth": 800,
+        "singleQuote": true,
+        "semiColons": true,
+        "proseWrap": "always"
     }
 }

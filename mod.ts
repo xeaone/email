@@ -21,8 +21,8 @@ import template from './template.ts';
 
 export default class Email {
     #key?: any;
-    #type: Type = 'json';
     #client?: Client;
+    #type: Type = 'json';
     #sandbox: boolean = false;
 
     constructor(options?: Options) {
@@ -80,6 +80,25 @@ export default class Email {
                     content: encode(value),
                     disposition: 'attachment',
                     type: typeByExtension(name),
+                });
+            }
+        }
+
+        if (data.inlines) {
+            body.attachments = body.attachments ?? [];
+
+            if (data.inlines?.constructor !== Object) {
+                throw new Error('inlines object type not valid');
+            }
+
+            for (const name in data.inlines) {
+                const value = data.inlines[name];
+                body.attachments.push({
+                    filename: name,
+                    content: encode(value),
+                    disposition: 'inline',
+                    type: typeByExtension(name),
+                    content_id: name.replace(/\..*$/, ''),
                 });
             }
         }

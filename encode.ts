@@ -18,7 +18,8 @@ const htmlEntityMap: Record<string, string> = {
 
 const htmlEntityPattern = /[&<>"'/]/ig;
 
-export const htmlEntity = (data: string) =>
+export const htmlEntity = (data?: string) =>
+    data ?
     data.replace(htmlEntityPattern, match =>
         htmlEntityMap[match]
-    );
+    ) : '';

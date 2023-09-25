@@ -1,6 +1,26 @@
-import dash from './dash.ts';
 import { htmlEntity, attributeEntity } from './encode.ts';
-// deno-fmt-ignore-file
+import dash from './dash.ts';
+
+const tag = (data: string) => htmlEntity(data);
+
+const src = (element: Element) => element.src ? `src="${element.src}"` : '';
+const href = (element: Element) => element.href ? `href="${element.href}"` : '';
+
+const attributes = (item: { attributes?: Record<string, string> }) => {
+    const result = [];
+
+    for (const name in item.attributes) {
+        const value = item.attributes[name];
+        if (name === 'href' || name === 'src' || name === 'style') {
+            // result.push(`${dash(name)}="${value}"`);
+            console.warn(`should not use attribute for ${name}`);
+        } else {
+            result.push(`${dash(name)}="${attributeEntity(value)}"`);
+        }
+    }
+
+    return result.join(' ');
+}
 
 const style = (item: { style?: Record<string, string> }) => {
     const result = [];
@@ -13,27 +33,15 @@ const style = (item: { style?: Record<string, string> }) => {
     return result.length ? `style="${attributeEntity(result.join(' '))}"` : '';
 }
 
-const attributes = (item: { attributes?: Record<string, string> }) => {
-    const result = [];
-
-    for (const name in item.attributes) {
-        const value = item.attributes[name];
-        result.push(`${dash(name)}="${attributeEntity(value)}"`);
-    }
-
-    return result.join(' ');
-}
-
-const tag = (data: string) => {
-    return htmlEntity(data);
-}
-
 type Element = {
+    tag: string,
+
     style?: Record<string, string>,
     attributes?: Record<string, string>,
 
-    tag: string,
-    text: string,
+    src?: string,
+    href?: string,
+    text?: string,
 }
 
 type ColumnInner = {
@@ -69,10 +77,16 @@ type Root = {
     fontFamily?: string,
     backgroundColor?: string,
 
-    title?: string,
-
-    rows?: Array<RowOuter>,
+    title: string,
+    rows: Array<RowOuter>,
 }
+
+const inline = ['img'];
+
+const create = (element: Element) =>
+    inline.includes(element.tag)
+        ? `<${tag(element.tag)} ${style(element)} ${src(element)} ${href(element)} ${attributes(element)} />`
+        : `<${tag(element.tag)} ${style(element)} ${src(element)} ${href(element)} ${attributes(element)}>${htmlEntity(element.text)}</${tag(element.tag)}>`;
 
 export default ({
     color = '#000',
@@ -82,7 +96,7 @@ export default ({
     backgroundColor = '#fff',
     title = '',
     rows = [],
-}: Root = {}) => `
+}: Root) => `
 <!DOCTYPE html>
 <html lang="en" style="margin: 0; padding: 0; width: 100%; height: 100%">
 <head>
@@ -130,11 +144,7 @@ export default ({
                         ${(row.columns || []).map(column => `
                         <td align="${column.align || 'left'}" valign="${column.valign || 'middle'}">
 
-                            ${column.elements?.map(element => `
-
-                            <${tag(element.tag)} ${style(element)} ${attributes(element)}>${htmlEntity(element.text)}</${tag(element.tag)}>
-
-                            `).join('\n')}
+                            ${column.elements?.map(element => create(element)).join('\n')}
 
                         </td>
                         `).join('\n')}
@@ -154,4 +164,4 @@ export default ({
 
 </body>
 </html>
-`
+`;
