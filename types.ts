@@ -9,7 +9,11 @@ export type Options = {
     sandbox?: boolean;
 };
 
-export type SendData = {
+export type SendOptions = {
+
+    id?: string, // template_id
+    data?: Record<string, string>; // dynamic_template_data
+
     text?: string;
     html?: string;
 

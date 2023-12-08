@@ -1,5 +1,5 @@
-import { Client, Options, SendData, Type } from './types.ts';
-import { encode, typeByExtension } from './deps.ts';
+import { Client, Options, SendOptions, Type } from './types.ts';
+import { encodeBase64, contentType, extname } from './deps.ts';
 import template from './template.ts';
 // import * as Html from './html.ts';
 // import * as Text from './text.ts';
@@ -22,82 +22,99 @@ import template from './template.ts';
 export default class Email {
     #key?: any;
     #client?: Client;
+    #sandbox = false;
     #type: Type = 'json';
-    #sandbox: boolean = false;
 
     constructor(options?: Options) {
         this.#key = options?.key ?? this.#key;
-        this.#client = options?.client ?? this.#client;
         this.#type = options?.type ?? this.#type;
+        this.#client = options?.client ?? this.#client;
         this.#sandbox = options?.sandbox ?? this.#sandbox;
     }
 
-    #sendGrid(data: SendData) {
+    #sendGrid(options: SendOptions) {
         if (!this.#key) throw new Error('key required');
 
         const body: any = {
-            content: [],
-            subject: data.subject,
-            from: { email: data.from },
-            personalizations: [],
+            subject: options.subject,
+            from: { email: options.from },
+            personalizations: [ {
+                subject: options.subject,
+                from: { email: options.from }
+            }],
         };
 
         if (this.#sandbox === true) {
             body.mail_settings = { sandbox_mode: { enable: true } };
         }
 
-        if (data.to?.constructor === String) {
-            body.personalizations.push({ to: [{ email: data.to }] });
+        if (typeof options.to === 'string') {
+            body.personalizations[ 0 ].to = [ { email: options.to } ];
         }
 
-        if (data.to?.constructor === Array) {
-            body.personalizations.push({
-                to: data.to.map((email) => ({ email })),
-            });
+        if (typeof options.to === 'object') {
+            body.personalizations[ 0 ].to = options.to.map((email) => ({ email }));
         }
 
-        if (data.name) body.from.name = data.name;
-        // if (data.reply) body.replay_to = { email: data.reply };
-
-        if (data.text) {
-            body.content.push({ type: 'text/plain', value: data.text });
-        }
-        if (data.html) {
-            body.content.push({ type: 'text/html', value: data.html });
+        if (options.name) {
+            if (typeof options.name !== 'string') throw new Error('name not valid');
+            body.from.name = options.name;
         }
 
-        if (data.attachments) {
-            body.attachments = [];
+        // if (options.reply) body.replay_to = { email: options.reply };
 
-            if (data.attachments?.constructor !== Object) {
+        if (options.id) {
+            if (typeof options.id !== 'string') throw new Error('id not valid');
+            body.template_id = options.id;
+        }
+
+        if (options.data) {
+            if (typeof options.data !== 'object') throw new Error('data not valid');
+            body.personalizations[ 0 ].dynamic_template_data = { ...options.data };
+        }
+
+        if (options.text) {
+            body.content = body.content ?? [];
+            body.content.push({ type: 'text/plain', value: options.text });
+        }
+
+        if (options.html) {
+            body.content = body.content ?? [];
+            body.content.push({ type: 'text/html', value: options.html });
+        }
+
+        if (options.attachments) {
+            body.attachments = body.attachments ?? [];
+
+            if (options.attachments?.constructor !== Object) {
                 throw new Error('attachments object type not valid');
             }
 
-            for (const name in data.attachments) {
-                const value = data.attachments[name];
+            for (const name in options.attachments) {
+                const value = options.attachments[name];
                 body.attachments.push({
                     filename: name,
-                    content: encode(value),
                     disposition: 'attachment',
-                    type: typeByExtension(name),
+                    content: encodeBase64(value),
+                    type: contentType(extname(name)),
                 });
             }
         }
 
-        if (data.inlines) {
+        if (options.inlines) {
             body.attachments = body.attachments ?? [];
 
-            if (data.inlines?.constructor !== Object) {
+            if (options.inlines?.constructor !== Object) {
                 throw new Error('inlines object type not valid');
             }
 
-            for (const name in data.inlines) {
-                const value = data.inlines[name];
+            for (const name in options.inlines) {
+                const value = options.inlines[name];
                 body.attachments.push({
                     filename: name,
-                    content: encode(value),
                     disposition: 'inline',
-                    type: typeByExtension(name),
+                    content: encodeBase64(value),
+                    type: contentType(extname(name)),
                     content_id: name.replace(/\..*$/, ''),
                 });
             }
@@ -227,7 +244,7 @@ export default class Email {
     //     return { text, html, attachments };
     // }
 
-    send(data: SendData) {
+    send(data: SendOptions) {
         if (!data) throw new Error('data required');
         if (!data.to) throw new Error('to required');
         if (!data.from) throw new Error('from required');
